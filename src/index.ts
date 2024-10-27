@@ -78,7 +78,7 @@ export default class PluginSample extends Plugin {
 
         this.addTopBar({
             icon: "iconGiteeCommit",
-            title: `${this.i18n.pname}\n Ctrl+Alt+G`,
+            title: `${this.i18n.pluginName}\n Ctrl+Alt+G`,
             position: "right",
             callback: () => {
                 const dialog = showMessageDialog("",
