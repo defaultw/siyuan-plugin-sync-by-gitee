@@ -1,3 +1,5 @@
+[中文](./README_zh_CN.md) | [English](./README.md)
+
 ## Introduction
 It works with the back-end interface and Shell script to synchronize the note files on the server to the Gitee server.
 
