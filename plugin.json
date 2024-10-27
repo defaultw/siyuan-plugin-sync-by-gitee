@@ -1,0 +1,36 @@
+{
+  "name": "siyuan-plugin-sync-by-gitee",
+  "author": "frostime",
+  "url": "https://github.com/siyuan-note/plugin-sample-vite-svelte",
+  "version": "0.0.1",
+  "minAppVersion": "3.0.12",
+  "backends": [
+    "docker"
+  ],
+  "frontends": [
+    "desktop",
+    "browser-desktop",
+    "browser-mobile",
+    "desktop-window"
+  ],
+  "displayName": {
+    "en_US": "Note files are backed up synchronously",
+    "zh_CN": "笔记文档同步备份"
+  },
+  "description": {
+    "en_US": "It works with the back-end interface and Shell script to synchronize the note files on the server to the Gitee server",
+    "zh_CN": "与后端接口及Shell脚本配合实现将服务器端的笔记文件同步备份到Gitee服务器"
+  },
+  "readme": {
+    "en_US": "README.md",
+    "zh_CN": "README_zh_CN.md"
+  },
+  "funding": {
+    "custom": [
+      ""
+    ]
+  },
+  "keywords": [
+    "笔记文档同步备份"
+  ]
+}
