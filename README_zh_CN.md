@@ -1,3 +1,5 @@
+[中文](./README_zh_CN.md) | [English](./README.md)
+
 ## 介绍
 与后端接口及Shell脚本配合实现将服务器端的笔记文件同步备份到Gitee服务器。
 
