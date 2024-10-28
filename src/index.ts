@@ -8,6 +8,7 @@ import axios from 'axios';
 import { svelteDialog } from "./libs/dialog";
 import GitteCommitMessage from "./components/GitteCommitMessage.svelte";
 import { SettingUtils } from "./libs/setting-utils";
+import CommitStatus from "./components/CommitStatus.svelte";
 
 export default class PluginSample extends Plugin {
 
@@ -31,6 +32,18 @@ export default class PluginSample extends Plugin {
             </symbol>
         `);
 
+        const template = document.createElement('div');
+        const commitStatusComponent = new CommitStatus({
+            target: template,
+            props: {
+                visible: false
+            }
+        });
+
+        this.addStatusBar({
+            element: template.firstChild as HTMLElement
+        });
+
         const headers = {
             'token': 'uT80UY6mxVBa98n3A722M89Slqp9v4mSRHczIGxUyVNCSf6dS1JcU8H42FwjlDvE'
         };
@@ -39,7 +52,10 @@ export default class PluginSample extends Plugin {
          * 请求同步接口
          */
         const syncData = (message?: string, dialog?: any) => {
+            // 显示提交信息弹窗
             showMessage(this.i18n.syncStart, 2000, "info");
+            // 显示加载框
+            commitStatusComponent.$set({ visible: true })
             let url = this.settingUtils.get("requestUrl");
             if (message) {
                 url += `?message=${message}`;
@@ -55,9 +71,11 @@ export default class PluginSample extends Plugin {
                     showMessage(`🙁[${res?.code}] ${res?.message}`, 2000, "error");
                 }
                 dialog?.close();
+                commitStatusComponent.$set({ visible: false })
             }).catch(error => {
                 showMessage(`[${error?.code}] ${error?.message}`);
                 dialog?.close();
+                commitStatusComponent.$set({ visible: false })
             });
         }
 
