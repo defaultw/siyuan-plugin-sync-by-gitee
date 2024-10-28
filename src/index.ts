@@ -90,8 +90,8 @@ export default class PluginSample extends Plugin {
         });
 
         /**
-             * 注册快捷键
-             */
+        * 注册快捷键
+        */
         this.addCommand({
             langKey: this.i18n.sync,
             hotkey: "⌘⌥G",
