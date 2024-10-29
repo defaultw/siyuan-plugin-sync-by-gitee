@@ -36,7 +36,8 @@ export default class PluginSample extends Plugin {
         const commitStatusComponent = new CommitStatus({
             target: template,
             props: {
-                visible: false
+                visible: false,
+                explain: this.i18n.explainInfo
             }
         });
 
@@ -52,10 +53,13 @@ export default class PluginSample extends Plugin {
          * 请求同步接口
          */
         const syncData = (message?: string, dialog?: any) => {
+            // 关闭弹窗
+            dialog?.close();
             // 显示提交信息弹窗
             showMessage(this.i18n.syncStart, 2000, "info");
             // 显示加载框
             commitStatusComponent.$set({ visible: true })
+
             let url = this.settingUtils.get("requestUrl");
             if (message) {
                 url += `?message=${message}`;
@@ -70,11 +74,9 @@ export default class PluginSample extends Plugin {
                 } else {
                     showMessage(`🙁[${res?.code}] ${res?.message}`, 2000, "error");
                 }
-                dialog?.close();
                 commitStatusComponent.$set({ visible: false })
             }).catch(error => {
                 showMessage(`[${error?.code}] ${error?.message}`);
-                dialog?.close();
                 commitStatusComponent.$set({ visible: false })
             });
         }

@@ -26,5 +26,6 @@
     "syncAddrDesc": "Enter the request address that you want to synchronize",
     "syncMessage": "Synchronous remark message",
     "syncMessageDesc": "Enter a note message to be synchronized",
-    "pluginName": "笔记文档同步备份"
+    "pluginName": "Synchronous backup of notes and documents",
+    "explainInfo": "Synchronizing..."
 }

@@ -26,5 +26,6 @@
     "syncAddrDesc": "输入需要同步的请求地址",
     "syncMessage": "同步备注消息",
     "syncMessageDesc": "输入需要同步的备注消息",
-    "pluginName": "笔记文档同步备份"
+    "pluginName": "笔记文档同步备份",
+    "explainInfo": "正在同步..."
 }

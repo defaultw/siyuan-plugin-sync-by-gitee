@@ -1,14 +1,34 @@
 <script lang="ts">
     export let visible: boolean = false;
+    export let explain: string = "";
 </script>
 
-<div class="progress-container" class:hidden={!visible}>
-    <div class="progress-bar"></div>
+<div class="container" class:container-hidden={!visible}>
+    <div class="explain">{explain}</div>
+    <div class="progress-container">
+        <div class="progress-bar"></div>
+    </div>
 </div>
 
 <style>
+    .container {
+        display: flex;
+        width: 10%; /* 容器宽度是可变的 */
+        align-items: center; /* 垂直居中对齐 */
+        font-size: 12px;
+        color: var(--b3-theme-on-surface);
+        font-family: var(--b3-font-family);
+    }
+
+    .explain {
+        flex: 30%; /* 占据30%的宽度 */
+        white-space: nowrap; /* 不换行 */
+        overflow: hidden; /* 隐藏溢出内容 */
+        text-overflow: ellipsis; /* 显示省略号 */
+    }
+
     .progress-container {
-        width: 10%; /* 进度条容器宽度 */
+        width: 60%; /* 进度条容器宽度 */
         height: 5px; /* 进度条高度 */
         background-color: #e0e0de; /* 背景颜色 */
         border-radius: 10px; /* 圆角 */
@@ -40,7 +60,7 @@
         } /* 移动到容器最右侧外 */
     }
 
-    .hidden {
+    .container-hidden {
         display: none; /* 完全隐藏并移除布局中的空间 */
     }
 </style>
