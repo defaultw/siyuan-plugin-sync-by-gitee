@@ -18,6 +18,9 @@
         font-size: 12px;
         color: var(--b3-theme-on-surface);
         font-family: var(--b3-font-family);
+        /**可以靠左显示，但是不能自适应，有可能和原有元素重合*/
+        /* position: absolute;
+        left: calc(100vw - 12vw - 129px); */
     }
 
     .explain {

@@ -32,6 +32,44 @@ export default class PluginSample extends Plugin {
             </symbol>
         `);
 
+        this.settingUtils = new SettingUtils({
+            plugin: this, name: this.i18n.giteeConfig
+        });
+        this.settingUtils.addItem({
+            key: "requestUrl",
+            value: "",
+            type: "textinput",
+            title: this.i18n.syncAddr,
+            description: this.i18n.syncAddrDesc,
+            action: {
+                callback: () => { }
+            }
+        });
+
+        this.settingUtils.addItem({
+            key: "requestMessage",
+            value: "",
+            type: "textinput",
+            title: this.i18n.syncMessage,
+            description: this.i18n.syncMessageDesc,
+            action: {
+                callback: () => { }
+            }
+        });
+
+        this.settingUtils.addItem({
+            key: "requestToken",
+            value: "",
+            type: "textinput",
+            title: this.i18n.token,
+            description: this.i18n.tokenDesc,
+            action: {
+                callback: () => { }
+            }
+        });
+        // 导入并合并配置
+        await this.settingUtils.load();
+
         const template = document.createElement('div');
         const commitStatusComponent = new CommitStatus({
             target: template,
@@ -44,10 +82,6 @@ export default class PluginSample extends Plugin {
         this.addStatusBar({
             element: template.firstChild as HTMLElement
         });
-
-        const headers = {
-            'token': 'uT80UY6mxVBa98n3A722M89Slqp9v4mSRHczIGxUyVNCSf6dS1JcU8H42FwjlDvE'
-        };
 
         /**
          * 请求同步接口
@@ -66,6 +100,10 @@ export default class PluginSample extends Plugin {
             } else {
                 url += ("?message=" + this.settingUtils.get("requestMessage"));
             }
+
+            const headers = {
+                'token': this.settingUtils.get("requestToken")
+            };
             axios.get(url, { "headers": headers }).then(response => {
                 const res = response.data;
                 // 请求成功
@@ -119,34 +157,6 @@ export default class PluginSample extends Plugin {
                 syncData(this.settingUtils.get("requestMessage"));
             },
         });
-
-
-        this.settingUtils = new SettingUtils({
-            plugin: this, name: this.i18n.giteeConfig
-        });
-        this.settingUtils.addItem({
-            key: "requestUrl",
-            value: "",
-            type: "textinput",
-            title: this.i18n.syncAddr,
-            description: this.i18n.syncAddrDesc,
-            action: {
-                callback: () => { }
-            }
-        });
-
-        this.settingUtils.addItem({
-            key: "requestMessage",
-            value: "",
-            type: "textinput",
-            title: this.i18n.syncMessage,
-            description: this.i18n.syncMessageDesc,
-            action: {
-                callback: () => { }
-            }
-        });
-        // 导入并合并配置
-        await this.settingUtils.load();
 
     }
 

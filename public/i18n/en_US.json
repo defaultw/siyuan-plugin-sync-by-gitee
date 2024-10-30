@@ -27,5 +27,7 @@
     "syncMessage": "Synchronous remark message",
     "syncMessageDesc": "Enter a note message to be synchronized",
     "pluginName": "Synchronous backup of notes and documents",
-    "explainInfo": "Synchronizing..."
+    "explainInfo": "Synchronizing...",
+    "token": "Token",
+    "tokenDesc": "Synchronization request validation Token"
 }
