@@ -1,5 +1,6 @@
 {
     "addTopBarIcon": "Add a top bar icon by plugin",
+    "addTopMenu": "Add top menu",
     "cancel": "Cancel",
     "save": "Save",
     "byeMenu": "Bye, Menu!",
@@ -21,6 +22,7 @@
     "syncFinish": "😀Document has been synchronized",
     "syncDesc": "Synchronize to Gitee- NOTE",
     "sync": "synchronization",
+    "commitHistory": "Commit history",
     "giteeConfig": "Gitee configuration",
     "syncAddr": "Synchronous address",
     "syncAddrDesc": "Enter the request address that you want to synchronize",

@@ -1,5 +1,6 @@
 {
     "addTopBarIcon": "使用插件添加一个顶栏按钮",
+    "addTopMenu": "添加顶部菜单",
     "cancel": "取消",
     "save": "保存",
     "byeMenu": "再见，菜单！",
@@ -21,6 +22,7 @@
     "syncFinish": "😀文档已同步",
     "syncDesc": "同步到Gitee-说明",
     "sync": "同步",
+    "commitHistory": "提交历史",
     "giteeConfig": "Gitee配置",
     "syncAddr": "同步地址",
     "syncAddrDesc": "输入需要同步的请求地址",
