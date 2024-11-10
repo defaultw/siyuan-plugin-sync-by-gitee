@@ -1,4 +1,5 @@
 <script>
+    import { onMount } from "svelte";
     import axios from "axios";
 
     const getCommitHistory = async (pageNum = 1, pageSize = 20) => {
@@ -55,10 +56,10 @@
     </div>
     <div class="commit-history">
         {#each commitHistory as commit}
-            <div class="commit-item">
-                <span>User: {commit.user}</span><br />
-                <span>Date: {commit.date}</span><br />
-                <span>Message: {commit.message}</span>
+            <div class="commit-item" title={commit.message}>
+                <span class="commit-message">{commit.message}</span>
+                <span class="commit-user">{commit.user}</span>
+                <span class="commit-date">{commit.date}</span>
             </div>
         {/each}
     </div>
@@ -66,9 +67,49 @@
 
 <style>
     .commit-item {
-        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 5px;
+        background-color: transparent;
+        transition: background-color 0.3s;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .commit-item:nth-child(odd) {
+        background-color: #f9f9f9;
+    }
+
+    .commit-item:hover {
+        background-color: #e0e0e0;
+    }
+
+    .commit-item > span {
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .commit-message {
+        flex: 0 0 50%;
+    }
+
+    .commit-user {
+        flex: 0 0 20%;
+    }
+
+    .commit-date {
+        flex: 0 0 30%;
+    }
+
+    .commit-item:hover .commit-message,
+    .commit-item:hover .commit-user,
+    .commit-item:hover .commit-date {
+        white-space: normal;
+        word-wrap: break-word;
+        overflow: visible;
     }
 </style>
