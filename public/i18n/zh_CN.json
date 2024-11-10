@@ -31,5 +31,8 @@
     "pluginName": "笔记文档同步备份",
     "explainInfo": "正在同步...",
     "token": "Token",
-    "tokenDesc": "同步请求校验Token"
+    "tokenDesc": "同步请求校验Token",
+    "loading": "加载中...",
+    "loadMore": "加载更多",
+    "commitHistoryPageSize": "提交记录每页显示条数"
 }

@@ -31,5 +31,8 @@
     "pluginName": "Synchronous backup of notes and documents",
     "explainInfo": "Synchronizing...",
     "token": "Token",
-    "tokenDesc": "Synchronization request validation Token"
+    "tokenDesc": "Synchronization request validation Token",
+    "loading": "loading...",
+    "loadMore": "load more",
+    "commitHistoryPageSize": "提交记录每页显示条数"
 }

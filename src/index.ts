@@ -78,6 +78,17 @@ export default class PluginSample extends Plugin {
                 callback: () => { }
             }
         });
+
+        this.settingUtils.addItem({
+            key: "commitHistoryPageSize",
+            value: "",
+            type: "textinput",
+            title: this.i18n.commitHistoryPageSize,
+            description: this.i18n.commitHistoryPageSize,
+            action: {
+                callback: () => { }
+            }
+        });
         // 导入并合并配置
         await this.settingUtils.load();
 
@@ -159,13 +170,13 @@ export default class PluginSample extends Plugin {
                     });
                 }
             });
-            menu.addItem({
-                icon: "iconCommitHistory",
-                label: this.i18n.commitHistory,
-                click: () => {
-                    IS_DOCK_SHOW = true;
-                }
-            });
+            // menu.addItem({
+            //     icon: "iconCommitHistory",
+            //     label: this.i18n.commitHistory,
+            //     click: () => {
+            //         IS_DOCK_SHOW = true;
+            //     }
+            // });
             menu.open({
                 x: rect.right,
                 y: rect.bottom,
@@ -206,20 +217,22 @@ export default class PluginSample extends Plugin {
             config: {
                 position: "RightTop",
                 size: { width: 400, height: 0 },
-                icon: "iconSaving",
-                title: "Custom Dock",
+                icon: "iconCommitHistory",
+                title: this.i18n.commitHistory,
                 hotkey: "⌥⌘W",
                 show: IS_DOCK_SHOW
             },
             data: {
-                title: "提交记录",
+                title: this.i18n.commitHistory,
             },
             type: DOCK_TYPE,
             init: (dock) => {
-                const template = document.createElement('div');
+                const template = document.createElement("div");
                 new CommitHistory({
                     target: template,
-                    props: {}
+                    props: {
+                        pageSize: this.settingUtils.get("commitHistoryPageSize")
+                    }
                 });
                 dock.element.appendChild(template);
             },

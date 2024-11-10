@@ -2,20 +2,29 @@
     import { onMount } from "svelte";
     import axios from "axios";
 
-    const getCommitHistory = async (pageNum = 1, pageSize = 20) => {
+    export let pageSize = 5;
+
+    let commitHistory = [];
+    let page = 1;
+    let totalPage = 1;
+    let totalCommit = 0;
+    let isLoading = false;
+
+    const getCommitHistory = async (pageNum = 1) => {
+        if (isLoading) return;
+        isLoading = true;
+
         const url =
             `https://gitee.com/api/v5/repos/defaultw/siyuan/commits?` +
-            `access_token=17bf19fc2f54f3c01fc7781c6df694ec&page=${pageNum}&per_page=${pageSize}`;
+            `access_token=17bf19fc2f54f3c01fc7781c6df694ec&page=${pageNum}&per_page=${pageSize} ? ${pageSize} : 5`;
         try {
             const response = await axios.get(url);
             const res = response.data;
             const headers = response.headers;
 
-            return {
-                page: pageNum,
-                totalPage: headers?.total_page,
-                totalCommit: headers?.total_count,
-                data: res?.map((commit) => ({
+            commitHistory = [
+                ...commitHistory,
+                ...res.map((commit) => ({
                     user: commit.commit.committer.name,
                     date: new Date(commit.commit.committer.date).toLocaleString(
                         "zh-CN",
@@ -30,24 +39,28 @@
                     ),
                     message: commit.commit.message,
                 })),
-            };
+            ];
+
+            totalPage = parseInt(headers["total_page"] || 1);
+            totalCommit = parseInt(headers["total_count"] || 0);
+            page = pageNum;
+
+            isLoading = false;
         } catch (error) {
             console.error("Error fetching commit history:", error);
-            throw error; // 重新抛出错误以便调用者可以处理
+            isLoading = false;
         }
     };
 
-    let commitHistory = [];
-
-    // 在组件初始化时获取提交历史
     onMount(async () => {
-        try {
-            const res = await getCommitHistory();
-            commitHistory = res.data;
-        } catch (error) {
-            console.error("Error fetching commit history:", error);
-        }
+        await getCommitHistory();
     });
+
+    const loadMore = () => {
+        if (page < totalPage) {
+            getCommitHistory(page + 1);
+        }
+    };
 </script>
 
 <div class="fn__flex-1 fn__flex-column">
@@ -63,6 +76,17 @@
             </div>
         {/each}
     </div>
+    {#if isLoading}
+        <div class="loading">加载中...</div>
+    {/if}
+    {#if !isLoading && page < totalPage}
+        <button class="pagination-button" on:click={loadMore}>
+            加载更多
+        </button>
+    {/if}
+    {#if page == totalPage && !isLoading}
+        <button class="pagination-button"> 没有更多内容啦~ </button>
+    {/if}
 </div>
 
 <style>
@@ -70,16 +94,20 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px;
-        background-color: transparent;
+        padding: 8px;
         transition: background-color 0.3s;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
+    /* 斑马纹效果 */
+    .commit-item:nth-child(even) {
+        background-color: #e4e4e4;
+    }
+
     .commit-item:nth-child(odd) {
-        background-color: #f9f9f9;
+        background-color: #f6f6f6;
     }
 
     .commit-item:hover {
@@ -112,4 +140,28 @@
         word-wrap: break-word;
         overflow: visible;
     }
+
+    .loading {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .pagination-button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        color: black; /* 文字颜色为黑色 */
+        border: none; /* 不显示边框 */
+        cursor: pointer;
+    }
+
+    /* .pagination-button:hover {
+        background-color: #f0f0f0;
+    }
+
+    .pagination-button:disabled {
+        background-color: #f0f0f0;
+        cursor: not-allowed;
+    } */
 </style>
