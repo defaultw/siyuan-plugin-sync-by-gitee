@@ -34,5 +34,6 @@
     "tokenDesc": "Synchronization request validation Token",
     "loading": "loading...",
     "loadMore": "load more",
-    "commitHistoryPageSize": "提交记录每页显示条数"
+    "commitHistoryPageSize": "提交记录每页显示条数",
+    "giteeToken": "Gitee token"
 }

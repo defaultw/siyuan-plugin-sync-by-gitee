@@ -34,5 +34,6 @@
     "tokenDesc": "同步请求校验Token",
     "loading": "加载中...",
     "loadMore": "加载更多",
-    "commitHistoryPageSize": "提交记录每页显示条数"
+    "commitHistoryPageSize": "提交记录每页显示条数",
+    "giteeToken": "Gitee token"
 }

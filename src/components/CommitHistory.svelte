@@ -3,6 +3,7 @@
     import axios from "axios";
 
     export let pageSize = 5;
+    export let accessToken = "";
 
     let commitHistory = [];
     let page = 1;
@@ -16,7 +17,7 @@
 
         const url =
             `https://gitee.com/api/v5/repos/defaultw/siyuan/commits?` +
-            `access_token=17bf19fc2f54f3c01fc7781c6df694ec&page=${pageNum}&per_page=${pageSize}`;
+            `access_token=${accessToken}&page=${pageNum}&per_page=${pageSize}`;
         try {
             const response = await axios.get(url);
             const res = response.data;

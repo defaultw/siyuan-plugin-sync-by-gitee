@@ -89,6 +89,17 @@ export default class PluginSample extends Plugin {
                 callback: () => { }
             }
         });
+
+        this.settingUtils.addItem({
+            key: "giteeToken",
+            value: "",
+            type: "textinput",
+            title: this.i18n.giteeToken,
+            description: this.i18n.giteeToken,
+            action: {
+                callback: () => { }
+            }
+        });
         // 导入并合并配置
         await this.settingUtils.load();
 
@@ -231,13 +242,11 @@ export default class PluginSample extends Plugin {
                 new CommitHistory({
                     target: template,
                     props: {
-                        pageSize: this.settingUtils.get("commitHistoryPageSize")
+                        pageSize: this.settingUtils.get("commitHistoryPageSize"),
+                        accessToken: this.settingUtils.get("giteeToken")
                     }
                 });
                 dock.element.appendChild(template);
-            },
-            destroy() {
-                console.log("destroy dock:", DOCK_TYPE);
             }
         });
     }
