@@ -10,6 +10,10 @@ import { svelteDialog } from "./libs/dialog";
 import GitteCommitMessage from "./components/GitteCommitMessage.svelte";
 import { SettingUtils } from "./libs/setting-utils";
 import CommitStatus from "./components/CommitStatus.svelte";
+import { error } from "console";
+
+const DOCK_TYPE = "dock_tab";
+let IS_DOCK_SHOW = false;
 
 export default class PluginSample extends Plugin {
 
@@ -126,6 +130,37 @@ export default class PluginSample extends Plugin {
             });
         }
 
+        const getCommitHistory = async (pageNum?: number, pageSize?: number): Promise<any> => {
+            const url = `https://gitee.com/api/v5/repos/defaultw/siyuan/commits?`
+                + `access_token=17bf19fc2f54f3c01fc7781c6df694ec&page=${pageNum}&per_page=${pageSize}`;
+            try {
+                const response = await axios.get(url);
+                const res = response.data;
+                const headers = response.headers;
+
+                return {
+                    page: pageNum,
+                    totalPage: headers?.total_page,
+                    totalCommit: headers?.total_count,
+                    data: res?.map(commit => ({
+                        user: commit.commit.committer.name,
+                        date: new Date(commit.commit.committer.date).toLocaleString('zh-CN', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        }),
+                        message: commit.commit.message
+                    }))
+                };
+            } catch (error) {
+                console.error('Error fetching commit history:', error);
+                throw error; // 重新抛出错误以便调用者可以处理
+            }
+        }
+
         const showMessageDialog = (message = "", onConfirm) => {
             return svelteDialog({
                 title: this.i18n.syncDesc,
@@ -159,9 +194,7 @@ export default class PluginSample extends Plugin {
                 icon: "iconCommitHistory",
                 label: this.i18n.commitHistory,
                 click: () => {
-                    const dialog = showMessageDialog("", (message: string) => {
-                        syncData(message, dialog);
-                    });
+                    IS_DOCK_SHOW = true;
                 }
             });
             menu.open({
@@ -199,6 +232,57 @@ export default class PluginSample extends Plugin {
             },
         });
 
+
+        this.addDock({
+            config: {
+                position: "RightTop",
+                size: { width: 400, height: 0 },
+                icon: "iconSaving",
+                title: "Custom Dock",
+                hotkey: "⌥⌘W",
+                show: IS_DOCK_SHOW
+            },
+            data: {
+                title: "提交记录",
+            },
+            type: DOCK_TYPE,
+            init: (dock) => {
+                dock.element.innerHTML = `
+                    <div class="fn__flex-1 fn__flex-column">
+                        <div class="block__icons">
+                            <div class="block__logo">
+                                ${dock.data.title}
+                            </div>
+                        </div>
+                        <div class="commit-history"></div>
+                    </div>`;
+                // 获取 commit-history div 元素
+                const commitHistoryDiv = dock.element.querySelector('.commit-history');
+
+                if (commitHistoryDiv) {
+                    // 获取提交历史并填充内容
+                    getCommitHistory(1, 20).then(res => {
+                        const commitList = res.data.map(commit => `
+                    <div class="commit-item">
+                        <span>User: ${commit.user}</span><br>
+                        <span>Date: ${commit.date}</span><br>
+                        <span>Message: ${commit.message}</span>
+                    </div>
+                `).join('');
+
+                        commitHistoryDiv.innerHTML = commitList;
+                    }).catch(error => {
+                        console.error('Error fetching commit history:', error);
+                    });
+                } else {
+                    console.error('commit-history div not found');
+                }
+
+            },
+            destroy() {
+                console.log("destroy dock:", DOCK_TYPE);
+            }
+        });
     }
 
 }
