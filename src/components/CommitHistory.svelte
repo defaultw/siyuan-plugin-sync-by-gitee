@@ -16,7 +16,7 @@
 
         const url =
             `https://gitee.com/api/v5/repos/defaultw/siyuan/commits?` +
-            `access_token=17bf19fc2f54f3c01fc7781c6df694ec&page=${pageNum}&per_page=${pageSize} ? ${pageSize} : 5`;
+            `access_token=17bf19fc2f54f3c01fc7781c6df694ec&page=${pageNum}&per_page=${pageSize}`;
         try {
             const response = await axios.get(url);
             const res = response.data;
@@ -61,11 +61,18 @@
             getCommitHistory(page + 1);
         }
     };
+
+    const refreshData = () => {
+        page = 1;
+        commitHistory = [];
+        getCommitHistory();
+    };
 </script>
 
 <div class="fn__flex-1 fn__flex-column">
     <div class="block__icons">
         <div class="block__logo">提交记录</div>
+        <button class="refresh-button" on:click={refreshData}> 刷新 </button>
     </div>
     <div class="commit-history">
         {#each commitHistory as commit}
@@ -156,12 +163,31 @@
         cursor: pointer;
     }
 
-    /* .pagination-button:hover {
+    .pagination-button:hover {
         background-color: #f0f0f0;
     }
 
     .pagination-button:disabled {
         background-color: #f0f0f0;
         cursor: not-allowed;
-    } */
+    }
+
+    .block__icons {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+    }
+
+    .refresh-button {
+        background-color: white; /* 白色背景 */
+        color: black; /* 黑色文字 */
+        border: none; /* 不显示边框 */
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+
+    .refresh-button:hover {
+        background-color: #f0f0f0; /* 鼠标悬停时的背景颜色 */
+    }
 </style>
