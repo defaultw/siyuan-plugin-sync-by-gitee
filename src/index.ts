@@ -13,7 +13,6 @@ import CommitStatus from "./components/CommitStatus.svelte";
 import CommitHistory from "./components/CommitHistory.svelte";
 
 const DOCK_TYPE = "dock_tab";
-let IS_DOCK_SHOW = false;
 
 export default class PluginSample extends Plugin {
 
@@ -231,7 +230,7 @@ export default class PluginSample extends Plugin {
                 icon: "iconCommitHistory",
                 title: this.i18n.commitHistory,
                 hotkey: "⌥⌘W",
-                show: IS_DOCK_SHOW
+                show: false
             },
             data: {
                 title: this.i18n.commitHistory,
