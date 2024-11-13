@@ -178,6 +178,7 @@
         justify-content: space-between;
         align-items: center;
         padding: 10px;
+        font-size: 16px;
     }
 
     .refresh-button {
