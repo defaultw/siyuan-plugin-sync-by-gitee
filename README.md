@@ -1,7 +1,7 @@
 [中文](./README_zh_CN.md) | [English](./README.md)
 
 ## Introduction
-It works with the back-end interface and Shell script to synchronize the note files on the server to the Gitee server.
+It works with the back-end interface and Shell script to synchronize the note files on the server to the Gitee server. 
 
 ## Use
 1. Fill in the content of 'synchronization address' and 'synchronization remarks message' on the configuration page;
