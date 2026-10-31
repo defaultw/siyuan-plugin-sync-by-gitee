@@ -71,7 +71,7 @@
             errorMessage = `加载失败: ${error.message || error}`;
         } finally {
             isLoading = false;
-    }
+        }
     };
 
     onMount(async () => {
@@ -93,7 +93,7 @@
 <div class="fn__flex-1 fn__flex-column">
     <div class="block__icons">
         <div class="block__logo">提交记录</div>
-        <button class="refresh-button" on:click={refreshData}> 刷新 </button>
+        <button class="b3-button b3-button--outline" on:click={refreshData}> 刷新 </button>
     </div>
     {#if errorMessage}
         <div class="error-message">{errorMessage}</div>
@@ -111,12 +111,12 @@
         <div class="loading">加载中...</div>
     {/if}
     {#if !isLoading && page < totalPage}
-        <button class="pagination-button" on:click={loadMore}>
+        <button class="pagination-button b3-button b3-button--outline" on:click={loadMore}>
             加载更多
         </button>
     {/if}
     {#if page == totalPage && !isLoading}
-        <button class="pagination-button"> 没有更多内容啦~ </button>
+        <button class="pagination-button b3-button b3-button--outline" disabled> 没有更多内容啦~ </button>
     {/if}
 </div>
 
@@ -134,15 +134,15 @@
 
     /* 斑马纹效果 */
     .commit-item:nth-child(even) {
-        background-color: #e4e4e4;
+        background-color: var(--b3-theme-surface);
     }
 
     .commit-item:nth-child(odd) {
-        background-color: #f6f6f6;
+        background-color: var(--b3-theme-background);
     }
 
     .commit-item:hover {
-        background-color: #e0e0e0;
+        background-color: var(--b3-list-hover, var(--b3-theme-surface));
     }
 
     .commit-item > span {
@@ -187,39 +187,10 @@
     .pagination-button {
         display: block;
         width: 100%;
-        padding: 10px;
         text-align: center;
-        color: black; /* 文字颜色为黑色 */
-        border: none; /* 不显示边框 */
-        cursor: pointer;
-    }
-
-    .pagination-button:hover {
-        background-color: #f0f0f0;
-    }
-
-    .pagination-button:disabled {
-        background-color: #f0f0f0;
-        cursor: not-allowed;
     }
 
     .block__icons {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
         font-size: 16px;
-    }
-
-    .refresh-button {
-        background-color: white; /* 白色背景 */
-        color: black; /* 黑色文字 */
-        border: none; /* 不显示边框 */
-        padding: 5px 10px;
-        cursor: pointer;
-    }
-
-    .refresh-button:hover {
-        background-color: #f0f0f0; /* 鼠标悬停时的背景颜色 */
     }
 </style>
