@@ -24,8 +24,8 @@
     "zh_CN": "笔记文档同步备份"
   },
   "description": {
-    "en_US": "It works with the back-end interface and Shell script to synchronize the note files on the server to the Gitee server",
-    "zh_CN": "与后端接口及Shell脚本配合实现将服务器端的笔记文件同步备份到Gitee服务器"
+    "en_US": "It works with the back-end interface and Shell script to synchronize the note files on the server to the Forgejo server",
+    "zh_CN": "与后端接口及Shell脚本配合实现将服务器端的笔记文件同步备份到Forgejo服务器"
   },
   "readme": {
     "en_US": "README.md",

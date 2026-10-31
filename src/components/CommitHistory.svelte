@@ -1,33 +1,58 @@
 <script>
     import { onMount } from "svelte";
-    import axios from "axios";
+    import { fetchSyncPost } from "siyuan";
 
     export let pageSize = 5;
-    export let accessToken = "";
+    export let forgejoUrl = "";
+    export let forgejoRepo = "";
+    export let forgejoToken = "";
 
     let commitHistory = [];
     let page = 1;
     let totalPage = 1;
     let totalCommit = 0;
     let isLoading = false;
+    let errorMessage = "";
+    let configured = forgejoUrl && forgejoRepo;
 
     const getCommitHistory = async (pageNum = 1) => {
         if (isLoading) return;
+        if (!configured) {
+            errorMessage = "请先在设置中配置 Forgejo 地址和仓库";
+            return;
+        }
         isLoading = true;
+        errorMessage = "";
 
-        const url =
-            `https://gitee.com/api/v5/repos/defaultw/siyuan/commits?` +
-            `access_token=${accessToken}&page=${pageNum}&per_page=${pageSize}`;
+        const baseUrl = forgejoUrl.replace(/\/+$/, "");
+        const targetUrl = `${baseUrl}/api/v1/repos/${forgejoRepo}/commits?page=${pageNum}&limit=${pageSize}`;
         try {
-            const response = await axios.get(url);
-            const res = response.data;
-            const headers = response.headers;
+            const response = await fetchSyncPost("/api/network/forwardProxy", {
+                url: targetUrl,
+                method: "GET",
+                timeout: 15000,
+                contentType: "application/json",
+                headers: [{ "Authorization": `token ${forgejoToken}` }],
+                payload: {}
+            });
+            if (response.code !== 0) {
+                throw new Error(response.msg || "请求失败");
+            }
+            const data = response.data;
+            if (data.status !== 200) {
+                throw new Error(`Forgejo API ${data.status}: ${data.body}`);
+            }
+            const commits = JSON.parse(data.body);
+            const totalCount = parseInt(data.headers?.["X-Total-Count"] || data.headers?.["x-total-count"] || 0, 10);
+            totalCommit = totalCount;
+            totalPage = Math.max(1, Math.ceil(totalCount / pageSize));
+            page = pageNum;
 
             commitHistory = [
                 ...commitHistory,
-                ...res.map((commit) => ({
-                    user: commit.commit.committer.name,
-                    date: new Date(commit.commit.committer.date).toLocaleString(
+                ...commits.map((commit) => ({
+                    user: commit.commit?.committer?.name ?? "",
+                    date: new Date(commit.commit?.committer?.date).toLocaleString(
                         "zh-CN",
                         {
                             year: "numeric",
@@ -38,19 +63,15 @@
                             second: "2-digit",
                         },
                     ),
-                    message: commit.commit.message,
+                    message: commit.commit?.message ?? "",
                 })),
             ];
-
-            totalPage = parseInt(headers["total_page"] || 1);
-            totalCommit = parseInt(headers["total_count"] || 0);
-            page = pageNum;
-
-            isLoading = false;
         } catch (error) {
             console.error("Error fetching commit history:", error);
+            errorMessage = `加载失败: ${error.message || error}`;
+        } finally {
             isLoading = false;
-        }
+    }
     };
 
     onMount(async () => {
@@ -64,7 +85,6 @@
     };
 
     const refreshData = () => {
-        page = 1;
         commitHistory = [];
         getCommitHistory();
     };
@@ -75,6 +95,9 @@
         <div class="block__logo">提交记录</div>
         <button class="refresh-button" on:click={refreshData}> 刷新 </button>
     </div>
+    {#if errorMessage}
+        <div class="error-message">{errorMessage}</div>
+    {/if}
     <div class="commit-history">
         {#each commitHistory as commit}
             <div class="commit-item" title={commit.message}>
@@ -152,6 +175,13 @@
     .loading {
         text-align: center;
         margin-top: 20px;
+    }
+
+    .error-message {
+        text-align: center;
+        margin-top: 20px;
+        color: var(--b3-theme-error, #d23f31);
+        padding: 8px;
     }
 
     .pagination-button {

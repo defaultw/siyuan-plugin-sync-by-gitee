@@ -20,10 +20,10 @@
     "hintDesc": "<a href='https://github.com/siyuan-note/plugin-sample-vite-svelte'>plugin-sample-vite-svelte</a><br>@frostime<br>@88250<br>@zxkmm",
     "syncStart": "😀The document synchronization starts...",
     "syncFinish": "😀Document has been synchronized",
-    "syncDesc": "Synchronize to Gitee- NOTE",
+    "syncDesc": "Synchronize to Forgejo- NOTE",
     "sync": "synchronization",
     "commitHistory": "Commit history",
-    "giteeConfig": "Gitee configuration",
+    "forgejoConfig": "Forgejo configuration",
     "syncAddr": "Synchronous address",
     "syncAddrDesc": "Enter the request address that you want to synchronize",
     "syncMessage": "Synchronous remark message",
@@ -35,5 +35,9 @@
     "loading": "loading...",
     "loadMore": "load more",
     "commitHistoryPageSize": "提交记录每页显示条数",
-    "giteeToken": "Gitee token"
+    "forgejoToken": "Forgejo token",
+    "forgejoUrl": "Forgejo URL",
+    "forgejoUrlDesc": "Enter the Forgejo server address, e.g. http://192.168.31.10:13333",
+    "forgejoRepo": "Repository",
+    "forgejoRepoDesc": "Enter the repository in owner/repo format"
 }
