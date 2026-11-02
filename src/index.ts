@@ -10,6 +10,7 @@ import { SettingUtils } from "./libs/setting-utils";
 import CommitStatus from "./components/CommitStatus.svelte";
 import CommitHistory from "./components/CommitHistory.svelte";
 import { syncWorkspace } from "./sync/sync";
+import { sanitizeSetting, sanitizeUrl } from "./sync/forgejo";
 
 const DOCK_TYPE = "dock_tab";
 
@@ -155,10 +156,10 @@ export default class PluginSample extends Plugin {
 
             try {
                 const result = await syncWorkspace({
-                    forgejoUrl: this.settingUtils.get("forgejoUrl"),
-                    forgejoRepo: this.settingUtils.get("forgejoRepo"),
-                    forgejoToken: this.settingUtils.get("forgejoToken"),
-                    workflowFile: String(this.settingUtils.get("workflowFile") || "sync.yml").trim(),
+                    forgejoUrl: sanitizeUrl(this.settingUtils.get("forgejoUrl")),
+                    forgejoRepo: sanitizeSetting(this.settingUtils.get("forgejoRepo")),
+                    forgejoToken: sanitizeSetting(this.settingUtils.get("forgejoToken")),
+                    workflowFile: sanitizeSetting(this.settingUtils.get("workflowFile") || "sync.yml"),
                     onProgress: (p) => {
                         if (p.stage === "dispatching") {
                             commitStatusComponent.$set({ explain: this.i18n.syncDispatching, detail: "" });
@@ -273,9 +274,9 @@ export default class PluginSample extends Plugin {
                     target: template,
                     props: {
                         pageSize: this.settingUtils.get("commitHistoryPageSize"),
-                        forgejoUrl: this.settingUtils.get("forgejoUrl"),
-                        forgejoRepo: this.settingUtils.get("forgejoRepo"),
-                        forgejoToken: this.settingUtils.get("forgejoToken")
+                        forgejoUrl: sanitizeUrl(this.settingUtils.get("forgejoUrl")),
+                        forgejoRepo: sanitizeSetting(this.settingUtils.get("forgejoRepo")),
+                        forgejoToken: sanitizeSetting(this.settingUtils.get("forgejoToken"))
                     }
                 });
                 dock.element.appendChild(template);

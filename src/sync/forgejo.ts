@@ -5,6 +5,19 @@ function baseUrl(url: string): string {
     return url.replace(/\/+$/, "");
 }
 
+/**
+ * 清洗设置值：用户从文档/聊天复制粘贴时可能混入反引号、引号等 markdown 格式字符，
+ * 这些字符在 URL/仓库名/令牌中本就非法，会导致 forwardProxy 请求失败。
+ */
+export function sanitizeSetting(value: string): string {
+    return String(value || "").trim().replace(/[`'"]/g, "");
+}
+
+/** 清洗 URL 设置值：另去末尾斜杠 */
+export function sanitizeUrl(value: string): string {
+    return baseUrl(sanitizeSetting(value));
+}
+
 function authHeaders(token: string): { Authorization: string }[] {
     return [{ Authorization: `token ${token}` }];
 }
@@ -45,10 +58,10 @@ function matchDispatchRun(runs: WorkflowRun[], workflowFile: string): WorkflowRu
 
 /** 拉取 workflow run 列表 */
 async function listRuns(opts: SyncOptions): Promise<WorkflowRun[]> {
-    const url = `${baseUrl(opts.forgejoUrl)}/api/v1/repos/${opts.forgejoRepo}/actions/runs`;
-    const response = await forwardProxy(url, "GET", {}, authHeaders(opts.forgejoToken), 30000, "application/json");
+    const url = `${sanitizeUrl(opts.forgejoUrl)}/api/v1/repos/${sanitizeSetting(opts.forgejoRepo)}/actions/runs`;
+    const response = await forwardProxy(url, "GET", {}, authHeaders(sanitizeSetting(opts.forgejoToken)), 30000, "application/json");
     if (response.code !== 0) {
-        throw new Error(response.msg || "forwardProxy 请求失败");
+        throw new Error(`forwardProxy 请求失败: ${response.msg || "未知原因"} (URL: ${url})`);
     }
     const data = response.data;
     if (data.status !== 200) {
@@ -81,15 +94,15 @@ export async function getLatestRunId(opts: SyncOptions): Promise<number> {
  * 成功返回 204 No Content。
  */
 export async function dispatchWorkflow(opts: SyncOptions, message?: string): Promise<void> {
-    const workflowId = opts.workflowFile;
-    const url = `${baseUrl(opts.forgejoUrl)}/api/v1/repos/${opts.forgejoRepo}/actions/workflows/${encodeURIComponent(workflowId)}/dispatches`;
+    const workflowId = sanitizeSetting(opts.workflowFile);
+    const url = `${sanitizeUrl(opts.forgejoUrl)}/api/v1/repos/${sanitizeSetting(opts.forgejoRepo)}/actions/workflows/${encodeURIComponent(workflowId)}/dispatches`;
     const payload: Record<string, unknown> = { ref: opts.branch || "refs/heads/master" };
     if (message) {
         payload.inputs = { commit_message: message };
     }
-    const response = await forwardProxy(url, "POST", payload, authHeaders(opts.forgejoToken), 30000, "application/json");
+    const response = await forwardProxy(url, "POST", payload, authHeaders(sanitizeSetting(opts.forgejoToken)), 30000, "application/json");
     if (response.code !== 0) {
-        throw new Error(response.msg || "forwardProxy 请求失败");
+        throw new Error(`forwardProxy 请求失败: ${response.msg || "未知原因"} (URL: ${url})`);
     }
     const data = response.data;
     if (data.status !== 204) {

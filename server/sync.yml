@@ -8,6 +8,7 @@ on:
       commit_message:
         description: "Commit message from SiYuan plugin"
         required: false
+        type: string
         default: "sync"
 
 jobs:

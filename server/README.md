@@ -146,7 +146,8 @@ pkill -f auto_commit.sh
 
 - Forgejo 地址：`http://192.168.31.10:13333`
 - 仓库：`wangxiaojiang/siyuan`
-- Forgejo token：需要 **Actions 写权限**（dispatch 需要 `workflow`/`actions:write` scope）
+- Forgejo token：scoped token 勾选 `repository` 为 **读写** 即可（Forgejo 的 Actions 接口
+  包括 workflow dispatch 与 runs 查询都归在 repository scope 下，无单独 actions 分类）
 - Workflow 文件名：`sync.yml`
 - 同步备注消息：默认提交信息
 
