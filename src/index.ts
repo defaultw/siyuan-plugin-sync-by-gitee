@@ -4,13 +4,12 @@ import {
     Menu
 } from "siyuan";
 import "@/index.scss";
-import axios from 'axios';
-
 import { svelteDialog } from "./libs/dialog";
 import GitteCommitMessage from "./components/GitteCommitMessage.svelte";
 import { SettingUtils } from "./libs/setting-utils";
 import CommitStatus from "./components/CommitStatus.svelte";
 import CommitHistory from "./components/CommitHistory.svelte";
+import { syncWorkspace } from "./sync/sync";
 
 const DOCK_TYPE = "dock_tab";
 
@@ -80,14 +79,12 @@ export default class PluginSample extends Plugin {
         });
 
         this.settingUtils.addItem({
-            key: "requestUrl",
-            value: "",
+            key: "workflowFile",
+            value: "sync.yml",
             type: "textinput",
-            title: this.i18n.syncAddr,
-            description: this.i18n.syncAddrDesc,
-            action: {
-                callback: () => { }
-            }
+            title: this.i18n.workflowFile,
+            description: this.i18n.workflowFileDesc,
+            action: { callback: () => { } }
         });
 
         this.settingUtils.addItem({
@@ -96,17 +93,6 @@ export default class PluginSample extends Plugin {
             type: "textinput",
             title: this.i18n.syncMessage,
             description: this.i18n.syncMessageDesc,
-            action: {
-                callback: () => { }
-            }
-        });
-
-        this.settingUtils.addItem({
-            key: "requestToken",
-            value: "",
-            type: "textinput",
-            title: this.i18n.token,
-            description: this.i18n.tokenDesc,
             action: {
                 callback: () => { }
             }
@@ -129,7 +115,7 @@ export default class PluginSample extends Plugin {
             try {
                 const oldData = await this.loadData("Gitee配置.json");
                 if (oldData) {
-                    for (const key of ["requestUrl", "requestMessage", "requestToken", "commitHistoryPageSize"]) {
+                    for (const key of ["requestMessage", "commitHistoryPageSize"]) {
                         if (oldData[key] !== undefined) {
                             this.settingUtils.set(key, oldData[key]);
                         }
@@ -157,37 +143,43 @@ export default class PluginSample extends Plugin {
         /**
          * 请求同步接口
          */
-        const syncData = (message?: string, dialog?: any) => {
+        const syncData = async (message?: string, dialog?: any) => {
             // 关闭弹窗
             dialog?.close();
             // 显示提交信息弹窗
             showMessage(this.i18n.syncStart, 2000, "info");
             // 显示加载框
-            commitStatusComponent.$set({ visible: true })
+            commitStatusComponent.$set({ visible: true, explain: this.i18n.explainInfo, detail: "" })
 
-            let url = this.settingUtils.get("requestUrl");
-            if (message) {
-                url += `?message=${message}`;
-            } else {
-                url += ("?message=" + this.settingUtils.get("requestMessage"));
-            }
+            const finalMessage = message || this.settingUtils.get("requestMessage") || "sync";
 
-            const headers = {
-                'token': this.settingUtils.get("requestToken")
-            };
-            axios.get(url, { "headers": headers }).then(response => {
-                const res = response.data;
-                // 请求成功
-                if (res.code === 1) {
-                    showMessage(this.i18n.syncFinish, 2000, "info");
+            try {
+                const result = await syncWorkspace({
+                    forgejoUrl: this.settingUtils.get("forgejoUrl"),
+                    forgejoRepo: this.settingUtils.get("forgejoRepo"),
+                    forgejoToken: this.settingUtils.get("forgejoToken"),
+                    workflowFile: String(this.settingUtils.get("workflowFile") || "sync.yml").trim(),
+                    onProgress: (p) => {
+                        if (p.stage === "dispatching") {
+                            commitStatusComponent.$set({ explain: this.i18n.syncDispatching, detail: "" });
+                        } else if (p.stage === "polling") {
+                            commitStatusComponent.$set({ explain: this.i18n.syncPolling, detail: p.detail || "" });
+                        }
+                    },
+                    onWarn: (msg) => console.warn("[forgejo-sync]", msg)
+                }, finalMessage);
+
+                const run = result.run;
+                if (run && run.status !== "success") {
+                    showMessage(`🙁 ${this.i18n.syncFailed}: ${run.status}${run.conclusion ? ` (${run.conclusion})` : ""} - ${run.html_url}`, 8000, "error");
                 } else {
-                    showMessage(`🙁[${res?.code}] ${res?.message}`, 2000, "error");
+                    showMessage(this.i18n.syncFinish, 2000, "info");
                 }
-                commitStatusComponent.$set({ visible: false })
-            }).catch(error => {
-                showMessage(`[${error?.code}] ${error?.message}`);
-                commitStatusComponent.$set({ visible: false })
-            });
+            } catch (error: any) {
+                showMessage(`🙁 ${error?.message || error}`, 5000, "error");
+            } finally {
+                commitStatusComponent.$set({ visible: false, detail: "" })
+            }
         }
 
         const showMessageDialog = (message = "", onConfirm) => {

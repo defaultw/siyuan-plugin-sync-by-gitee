@@ -1,0 +1,39 @@
+name: Sync SiYuan Workspace
+# 由思源笔记插件通过 workflow_dispatch 触发（可传 inputs.commit_message）
+# 在服务器上对 /opt/siyuan 执行真 git pull / add / commit / push
+
+on:
+  workflow_dispatch:
+    inputs:
+      commit_message:
+        description: "Commit message from SiYuan plugin"
+        required: false
+        default: "sync"
+
+jobs:
+  sync:
+    runs-on: [self-hosted]
+    # steps 直接运行在宿主机 /opt/siyuan（runner 以 label 匹配，见 runner 配置说明）
+    steps:
+      - name: Guard concurrent sync
+        run: |
+          # 用 flock 防止并发同步（多个 run 同时跑会冲突）
+          exec 9>/tmp/siyuan-sync.lock
+          flock -n 9 || { echo "已有同步任务在执行，跳过"; exit 1; }
+
+      - name: Git pull / add / commit / push
+        working-directory: /opt/siyuan
+        env:
+          COMMIT_MESSAGE: ${{ inputs.commit_message }}
+        run: |
+          set -e
+          git config --get user.name  >/dev/null || git config user.name  "siyuan-sync"
+          git config --get user.email >/dev/null || git config user.email "siyuan-sync@localhost"
+          git pull --rebase origin master
+          git add -A
+          if git diff --cached --quiet; then
+            echo "没有变更需要提交"
+          else
+            git commit -m "${COMMIT_MESSAGE:-sync}"
+          fi
+          git push origin master

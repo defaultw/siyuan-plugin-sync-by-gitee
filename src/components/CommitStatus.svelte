@@ -1,10 +1,14 @@
 <script lang="ts">
     export let visible: boolean = false;
     export let explain: string = "";
+    export let detail: string = "";
 </script>
 
 <div class="container" class:container-hidden={!visible}>
     <div class="explain">{explain}</div>
+    {#if detail}
+        <div class="detail">{detail}</div>
+    {/if}
     <div class="progress-container">
         <div class="progress-bar"></div>
     </div>
@@ -28,6 +32,15 @@
         white-space: nowrap; /* 不换行 */
         overflow: hidden; /* 隐藏溢出内容 */
         text-overflow: ellipsis; /* 显示省略号 */
+    }
+
+    .detail {
+        flex: 30%;
+        font-size: 12px;
+        color: var(--b3-theme-on-surface);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .progress-container {
