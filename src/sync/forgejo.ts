@@ -68,25 +68,30 @@ function extractErrorMessage(body: string): string {
     return body;
 }
 
-/** Forgejo Actions workflow run 摘要 */
+/** Forgejo Actions workflow run 摘要（兼容 Gitea 与 Forgejo v17 两种 schema） */
 export interface WorkflowRun {
     id: number;
-    display_title: string;
-    event: string;
-    path: string;
     run_number: number;
-    status: string;      // pending | queued | in_progress | success | failure | ...
-    conclusion: string;  // success | failure | cancelled | ...
-    html_url: string;
+    status: string;      // 终态：success | failure | cancelled；进行态：pending | queued | in_progress
+    // Forgejo v17 schema
+    trigger_event?: string;  // "workflow_dispatch"
+    workflow_id?: string;    // "sync.yml"
+    title?: string;
+    // Gitea schema
+    event?: string;          // "workflow_dispatch"
+    path?: string;           // ".forgejo/workflows/sync.yml"
+    display_title?: string;
+    conclusion?: string;
+    html_url?: string;
 }
 
-const FINAL_STATUSES = ["success", "failure", "cancelled", "skipped"];
+const FINAL_STATUSES = ["success", "failure", "cancelled", "canceled", "skipped"];
 
-/** 匹配本插件触发的 run：workflow_dispatch 事件 + workflow 文件路径 */
+/** 匹配本插件触发的 run：workflow_dispatch 事件 + workflow 文件标识 */
 function matchDispatchRun(runs: WorkflowRun[], workflowFile: string): WorkflowRun[] {
     return runs.filter(r =>
-        r.event === "workflow_dispatch"
-        && r.path.endsWith(workflowFile)
+        (r.trigger_event ?? r.event) === "workflow_dispatch"
+        && (r.workflow_id ?? r.path ?? "").endsWith(workflowFile)
     );
 }
 
