@@ -1,5 +1,13 @@
-import { forwardProxy } from "../api";
+import { fetchSyncPost } from "siyuan";
 import { SyncOptions } from "./types";
+
+/** IResForwardProxy（forwardProxy data 字段结构） */
+interface ProxyResult {
+    url: string;
+    status: number;
+    contentType?: string;
+    body?: string;
+}
 
 function baseUrl(url: string): string {
     return url.replace(/\/+$/, "");
@@ -20,6 +28,32 @@ export function sanitizeUrl(value: string): string {
 
 function authHeaders(token: string): { Authorization: string }[] {
     return [{ Authorization: `token ${token}` }];
+}
+
+/**
+ * 经内核 forwardProxy 发起请求。
+ * fetchSyncPost 返回完整 IWebSocketData {code, msg, data}：
+ * - code !== 0 → 内核层失败，抛含 msg 与 URL 的错误
+ * - 返回 data（IResForwardProxy），由调用方检查 HTTP status
+ */
+async function proxyRequest(
+    url: string,
+    method: "GET" | "POST",
+    payload: Record<string, unknown>,
+    token: string
+): Promise<ProxyResult> {
+    const response = await fetchSyncPost("/api/network/forwardProxy", {
+        url: url,
+        method: method,
+        timeout: 30000,
+        contentType: "application/json",
+        headers: authHeaders(token),
+        payload: payload
+    });
+    if (response.code !== 0) {
+        throw new Error(`forwardProxy 请求失败: ${response.msg || "未知原因"} (URL: ${url})`);
+    }
+    return response.data as ProxyResult;
 }
 
 function extractErrorMessage(body: string): string {
@@ -59,15 +93,11 @@ function matchDispatchRun(runs: WorkflowRun[], workflowFile: string): WorkflowRu
 /** 拉取 workflow run 列表 */
 async function listRuns(opts: SyncOptions): Promise<WorkflowRun[]> {
     const url = `${sanitizeUrl(opts.forgejoUrl)}/api/v1/repos/${sanitizeSetting(opts.forgejoRepo)}/actions/runs`;
-    const response = await forwardProxy(url, "GET", {}, authHeaders(sanitizeSetting(opts.forgejoToken)), 30000, "application/json");
-    if (response.code !== 0) {
-        throw new Error(`forwardProxy 请求失败: ${response.msg || "未知原因"} (URL: ${url})`);
-    }
-    const data = response.data;
+    const data = await proxyRequest(url, "GET", {}, sanitizeSetting(opts.forgejoToken));
     if (data.status !== 200) {
-        throw new Error(`Forgejo API ${data.status}: ${extractErrorMessage(data.body || "")}`);
+        throw new Error(`Forgejo API ${data.status}: ${extractErrorMessage(data.body || "")} (URL: ${url})`);
     }
-    const parsed = JSON.parse(data.body) as { workflow_runs?: WorkflowRun[] };
+    const parsed = JSON.parse(data.body || "{}") as { workflow_runs?: WorkflowRun[] };
     return parsed.workflow_runs || [];
 }
 
@@ -100,13 +130,9 @@ export async function dispatchWorkflow(opts: SyncOptions, message?: string): Pro
     if (message) {
         payload.inputs = { commit_message: message };
     }
-    const response = await forwardProxy(url, "POST", payload, authHeaders(sanitizeSetting(opts.forgejoToken)), 30000, "application/json");
-    if (response.code !== 0) {
-        throw new Error(`forwardProxy 请求失败: ${response.msg || "未知原因"} (URL: ${url})`);
-    }
-    const data = response.data;
+    const data = await proxyRequest(url, "POST", payload, sanitizeSetting(opts.forgejoToken));
     if (data.status !== 204) {
-        throw new Error(`Forgejo API ${data.status}: ${extractErrorMessage(data.body || "")}`);
+        throw new Error(`Forgejo API ${data.status}: ${extractErrorMessage(data.body || "")} (URL: ${url})`);
     }
 }
 
